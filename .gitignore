@@ -49,6 +49,7 @@ yarn-error.log*
 
 # Angular build
 dist/
+front/
 .out-tsc/
 
 # Environment files
