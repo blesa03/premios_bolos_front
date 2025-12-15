@@ -23,6 +23,7 @@ export const routes: Routes = [
   {
     path: 'premios/:id',
     canActivate: [authGuard],
+    renderMode: 'client',
     loadComponent: () =>
       import('./pages/premio-detalle/premio-detalle.component').then(
         (m) => m.PremioDetalleComponent
@@ -45,6 +46,7 @@ export const routes: Routes = [
   {
     path: 'votar/:id',
     canActivate: [authGuard],
+    renderMode: 'client',
     loadComponent: () =>
       import('./pages/votar/votar.component').then(m => m.VotarComponent),
   },
