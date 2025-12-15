@@ -44,6 +44,7 @@ export const PREMIOS_GANADOS: Record<string, PremioGanado[]> = {
 
   "primo": [
     { titulo: "Ludópata del Año", anio: 2024 },
+    { titulo: "Pareja del Año", anio: 2024 },
   ],
 
   "miguel": [
