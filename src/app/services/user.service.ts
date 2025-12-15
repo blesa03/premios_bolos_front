@@ -12,25 +12,23 @@ export interface User {
   avatar: string | null;
 }
 
-const API_BASE = 'http://localhost:8001';
-const API_URL = `${API_BASE}/api`;
+const API_URL = '/api';
 
-// Función auxiliar para que el avatar SIEMPRE tenga una URL bien formada
+// Normaliza el usuario SIN meter hosts ni localhost
 function normalizeUser(user: User): User {
-  if (user.avatar) {
-    // Si viene ya con http, lo dejamos tal cual
-    if (user.avatar.startsWith('http')) {
-      return user;
-    }
-    // Si viene como ruta relativa (/media/...), le ponemos el host delante
-    return {
-      ...user,
-      avatar: `${API_BASE}${user.avatar}`,
-    };
+  if (!user.avatar) {
+    return { ...user, avatar: null };
   }
+
+  // Si ya viene absoluta, la dejamos
+  if (user.avatar.startsWith('http')) {
+    return user;
+  }
+
+  // Si viene como /media/..., la dejamos tal cual
   return {
     ...user,
-    avatar: null,
+    avatar: user.avatar,
   };
 }
 
@@ -53,8 +51,8 @@ export class UserService {
   }
 
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${API_URL}/users/list/`)
-        .pipe(map(users => users.map(u => normalizeUser(u))));
+    return this.http
+      .get<User[]>(`${API_URL}/users/list/`)
+      .pipe(map(users => users.map(u => normalizeUser(u))));
   }
-
 }

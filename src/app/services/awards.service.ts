@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-const API_BASE = 'http://localhost:8001/api';
+const API_URL = '/api';
 
 export type AwardType = 'people' | 'clip';
 export type NominationMode = 'single' | 'pair' | 'multi';
@@ -29,7 +29,6 @@ export interface AwardSuggestion {
   resumen: string;
   descripcion: string;
 
-  // NUEVO
   award_type: AwardType;
   nomination_mode: NominationMode;
   max_participants: number | null;
@@ -74,49 +73,62 @@ export class AwardsService {
   constructor(private http: HttpClient) {}
 
   getAwards(): Observable<Award[]> {
-    return this.http.get<Award[]>(`${API_BASE}/awards/list/`);
+    return this.http.get<Award[]>(`${API_URL}/awards/list/`);
   }
 
   getAward(id: number): Observable<Award> {
-    return this.http.get<Award>(`${API_BASE}/awards/${id}/`);
+    return this.http.get<Award>(`${API_URL}/awards/${id}/`);
   }
 
   getAwardNominations(awardId: number): Observable<Nomination[]> {
-    return this.http.get<Nomination[]>(`${API_BASE}/awards/${awardId}/nominations/`);
+    return this.http.get<Nomination[]>(
+      `${API_URL}/awards/${awardId}/nominations/`
+    );
   }
 
   createNomination(
     awardId: number,
     data: { nominado: number; hazana: string; nominado_secundario?: number | null }
   ): Observable<Nomination> {
-    return this.http.post<Nomination>(`${API_BASE}/awards/${awardId}/nominations/`, {
-      award: awardId,
-      ...data,
-    });
+    return this.http.post<Nomination>(
+      `${API_URL}/awards/${awardId}/nominations/`,
+      {
+        award: awardId,
+        ...data,
+      }
+    );
   }
 
   createSuggestion(payload: {
     titulo: string;
     resumen: string;
     descripcion: string;
-
-    // NUEVO
     award_type: AwardType;
     nomination_mode: NominationMode;
     max_participants?: number | null;
   }): Observable<AwardSuggestion> {
-    return this.http.post<AwardSuggestion>(`${API_BASE}/awards/suggestions/`, payload);
+    return this.http.post<AwardSuggestion>(
+      `${API_URL}/awards/suggestions/`,
+      payload
+    );
   }
 
   getMySuggestions(): Observable<AwardSuggestion[]> {
-    return this.http.get<AwardSuggestion[]>(`${API_BASE}/awards/suggestions/`);
+    return this.http.get<AwardSuggestion[]>(
+      `${API_URL}/awards/suggestions/`
+    );
   }
 
   getResults(awardId: number): Observable<NominationResult[]> {
-    return this.http.get<NominationResult[]>(`${API_BASE}/awards/${awardId}/results/`);
+    return this.http.get<NominationResult[]>(
+      `${API_URL}/awards/${awardId}/results/`
+    );
   }
 
   vote(awardId: number, nominationId: number): Observable<any> {
-    return this.http.post(`${API_BASE}/awards/${awardId}/vote/`, { nomination: nominationId });
+    return this.http.post(
+      `${API_URL}/awards/${awardId}/vote/`,
+      { nomination: nominationId }
+    );
   }
 }

@@ -5,8 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import type { User } from './user.service';
 
-const API_BASE = 'http://localhost:8001';
-const API_URL = `${API_BASE}/api`;
+const API_URL = '/api';
 
 interface LoginResponse {
   refresh: string;
