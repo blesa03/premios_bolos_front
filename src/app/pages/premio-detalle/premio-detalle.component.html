@@ -62,31 +62,16 @@
       >
         <div
           *ngFor="let c of clipCandidates"
-          class="rounded-2xl bg-slate-900/70 border border-slate-800 p-4 shadow
-                 hover:border-emerald-400 transition flex flex-col justify-between"
+          class="rounded-2xl bg-slate-900/70 border border-slate-800 p-4 shadow hover:border-emerald-400 transition flex flex-col justify-between"
         >
-          <!-- Header -->
           <div class="flex items-center gap-3">
             <div class="flex -space-x-2">
               <ng-container *ngFor="let p of c.participants | slice:0:4">
-                <div
-                  class="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center"
-                >
-                  <img
-                    *ngIf="p.avatar; else noPAvatar"
-                    [src]="p.avatar"
-                    class="h-full w-full object-cover"
-                  />
+                <div class="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center">
+                  <img *ngIf="p.avatar; else noPAvatar" [src]="p.avatar" class="h-full w-full object-cover" />
                   <ng-template #noPAvatar>👤</ng-template>
                 </div>
               </ng-container>
-
-              <div
-                *ngIf="c.participants.length > 4"
-                class="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px]"
-              >
-                +{{ c.participants.length - 4 }}
-              </div>
             </div>
 
             <div class="min-w-0">
@@ -112,15 +97,6 @@
             >
               ▶ Ver clip
             </button>
-
-            <a
-              *ngIf="clipHasUrl(c)"
-              class="rounded-lg border border-slate-700 px-3 py-2 text-sm"
-              [href]="c.clip_url"
-              target="_blank"
-            >
-              Abrir
-            </a>
           </div>
         </div>
       </div>
@@ -138,10 +114,7 @@
           Nadie ha sido nominado todavía. 😴
         </p>
 
-        <div
-          *ngIf="nominados.length > 0"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
+        <div *ngIf="nominados.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
             *ngFor="let item of nominados"
             class="rounded-2xl bg-slate-900/70 border border-slate-800 p-4 shadow"
@@ -157,32 +130,90 @@
         </div>
       </section>
 
-      <!-- ✅ FORMULARIO ARREGLADO -->
+      <!-- ========================= -->
+      <!-- FORMULARIO RESTAURADO     -->
+      <!-- ========================= -->
       <section class="mt-8" *ngIf="award.allow_nominations">
         <h2 class="text-lg font-semibold mb-2">Nominar a alguien</h2>
         <p class="text-xs text-slate-500 mb-3">
-          Máximo 3 nominaciones por premio y usuario.
+          Máximo 3 nominaciones por premio y usuario. No vale nominar “porque sí”.
         </p>
 
-        <!-- 🔧 CONTENEDOR RESPONSIVE -->
-        <div class="w-full flex flex-col gap-4">
-          <!-- AQUÍ VA TU <form> TAL CUAL LO TENÍAS -->
-        </div>
-      </section>
+        <form class="space-y-3" (ngSubmit)="onSubmitNomination()">
+          <!-- Selector modo -->
+          <div *ngIf="award.allow_pair_nominations">
+            <label class="block text-xs font-medium mb-1">Tipo de nominación</label>
+            <div class="inline-flex rounded-full bg-slate-800 border border-slate-700 text-xs overflow-hidden">
+              <button type="button" class="px-3 py-1"
+                [ngClass]="modoNomina === 'single' ? 'bg-emerald-500 text-slate-900' : 'text-slate-300'"
+                (click)="modoNomina = 'single'">
+                Integrante
+              </button>
+              <button type="button" class="px-3 py-1"
+                [ngClass]="modoNomina === 'pair' ? 'bg-emerald-500 text-slate-900' : 'text-slate-300'"
+                (click)="modoNomina = 'pair'">
+                Pareja
+              </button>
+            </div>
+          </div>
 
-      <section
-        class="mt-8 text-sm text-amber-300 bg-amber-900/20 border border-amber-500/40 rounded-xl p-4"
-        *ngIf="!award.allow_nominations"
-      >
-        Este premio está cerrado 🛑
+          <!-- Single -->
+          <div *ngIf="!award.allow_pair_nominations || modoNomina === 'single'">
+            <label class="block text-xs font-medium mb-1">¿A quién quieres nominar?</label>
+            <select [(ngModel)]="formNominadoId" name="nominado"
+              class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm">
+              <option [ngValue]="null">Selecciona un bolero...</option>
+              <option *ngFor="let u of usuarios" [ngValue]="u.id">
+                {{ u.nickname || u.username }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Pareja -->
+          <div *ngIf="award.allow_pair_nominations && modoNomina === 'pair'"
+               class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium mb-1">Integrante 1</label>
+              <select [(ngModel)]="formNominadoId" name="nominado1"
+                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm">
+                <option [ngValue]="null">Selecciona...</option>
+                <option *ngFor="let u of usuarios" [ngValue]="u.id">
+                  {{ u.nickname || u.username }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium mb-1">Integrante 2</label>
+              <select [(ngModel)]="formNominadoId2" name="nominado2"
+                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm">
+                <option [ngValue]="null">Selecciona...</option>
+                <option *ngFor="let u of usuarios"
+                        [ngValue]="u.id"
+                        [disabled]="u.id === formNominadoId">
+                  {{ u.nickname || u.username }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hazaña -->
+          <div>
+            <label class="block text-xs font-medium mb-1">Hazaña</label>
+            <textarea [(ngModel)]="formHazana" name="hazana" rows="3"
+              class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm"
+              placeholder="Cuenta la desgracia..."></textarea>
+          </div>
+
+          <div *ngIf="formError" class="text-xs text-rose-400">{{ formError }}</div>
+          <div *ngIf="formSuccess" class="text-xs text-emerald-400">{{ formSuccess }}</div>
+
+          <button type="submit"
+            class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900">
+            Nominar a este premio
+          </button>
+        </form>
       </section>
     </ng-container>
   </ng-container>
 </div>
-
-<style>
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-</style>
