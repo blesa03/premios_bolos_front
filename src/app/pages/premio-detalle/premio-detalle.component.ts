@@ -21,26 +21,28 @@ import { UserService, User } from '../../services/user.service';
 export class PremioDetalleComponent implements OnInit {
   award: Award | null = null;
   icono = '🎖️';
-
   loading = true;
-  loadingNominations = false;
 
   usuarios: User[] = [];
 
-  // ✅ UNIFICADO CON /VOTAR
+  // 👉 MISMO MODELO QUE /votar
   nominations: NominationResult[] = [];
+
+  // 👉 CLIP
+  clipCandidates: NominationResult[] = [];
 
   // Modal clip
   clipModalOpen = false;
   selectedClip: NominationResult | null = null;
 
-  // Form nominación (people)
+  // Form nominación (people / pareja)
   formNominadoId: number | null = null;
   formNominadoId2: number | null = null;
   formHazana = '';
   saving = false;
   formError = '';
   formSuccess = '';
+
   modoNomina: 'single' | 'pair' = 'single';
 
   private ICONOS: Record<string, string> = {
@@ -71,6 +73,8 @@ export class PremioDetalleComponent implements OnInit {
       return;
     }
 
+    this.loading = true;
+
     forkJoin({
       award: this.awardsService.getAward(awardId),
       users: this.userService.getAllUsers(),
@@ -79,38 +83,59 @@ export class PremioDetalleComponent implements OnInit {
         this.award = award;
         this.icono = this.ICONOS[award.titulo] || '🎖️';
         this.usuarios = users;
-        this.loadNominations(awardId);
+
+        // 👉 USAMOS SIEMPRE RESULTS (igual que /votar)
+        this.awardsService.getResults(awardId).subscribe({
+          next: (results) => {
+            if (award.award_type === 'clip') {
+              this.clipCandidates = results;
+            } else {
+              this.nominations = results;
+            }
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error(err);
+            this.loading = false;
+          },
+        });
       },
-      error: () => (this.loading = false),
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
     });
   }
 
-  private loadNominations(awardId: number): void {
-    this.loadingNominations = true;
+  // =====================
+  // Helpers
+  // =====================
+  get isPairAward(): boolean {
+    return !!this.award?.allow_pair_nominations;
+  }
 
-    this.awardsService.getResults(awardId).subscribe({
-      next: (noms) => {
-        this.nominations = noms;
-        this.loading = false;
-        this.loadingNominations = false;
+  get isClipAward(): boolean {
+    return this.award?.award_type === 'clip';
+  }
+
+  recargarNominaciones(): void {
+    if (!this.award) return;
+
+    this.awardsService.getResults(this.award.id).subscribe({
+      next: (results) => {
+        if (this.award!.award_type === 'clip') {
+          this.clipCandidates = results;
+        } else {
+          this.nominations = results;
+        }
       },
-      error: () => {
-        this.loading = false;
-        this.loadingNominations = false;
-      },
+      error: (err) => console.error(err),
     });
   }
 
-  // -------- CLIP MODAL --------
-  clipHasUrl(n: NominationResult): boolean {
-    return !!(n.clip_url && n.clip_url.trim());
-  }
-
-  clipDisplayTitle(n: NominationResult): string {
-    const t = (n.clip_title || '').trim();
-    return t || n.display_name || 'Clip';
-  }
-
+  // =====================
+  // Modal clip
+  // =====================
   openClip(nom: NominationResult): void {
     if (!this.clipHasUrl(nom)) return;
     this.selectedClip = nom;
@@ -122,15 +147,64 @@ export class PremioDetalleComponent implements OnInit {
     this.selectedClip = null;
   }
 
-  // -------- FORM PEOPLE --------
+  // =====================
+  // Form submit (solo people)
+  // =====================
   onSubmitNomination(): void {
-    if (!this.award || this.award.award_type === 'clip') return;
+    if (!this.award) return;
+    if (this.award.award_type === 'clip') return;
 
     this.formError = '';
     this.formSuccess = '';
 
     if (!this.formHazana.trim()) {
-      this.formError = 'Cuenta la hazaña, no seas perro.';
+      this.formError =
+        'Cuéntanos la hazaña, no vale nominar “porque sí”.';
+      return;
+    }
+
+    // ---- PAREJA ----
+    if (this.isPairAward && this.modoNomina === 'pair') {
+      if (!this.formNominadoId || !this.formNominadoId2) {
+        this.formError = 'Elige a los dos integrantes de la pareja.';
+        return;
+      }
+
+      if (this.formNominadoId === this.formNominadoId2) {
+        this.formError = 'No puedes nominar a la misma persona dos veces.';
+        return;
+      }
+
+      this.saving = true;
+
+      this.awardsService
+        .createNomination(this.award.id, {
+          nominado: this.formNominadoId,
+          nominado_secundario: this.formNominadoId2,
+          hazana: this.formHazana.trim(),
+        })
+        .subscribe({
+          next: () => {
+            this.resetForm();
+            this.formSuccess =
+              'Nominación de pareja enviada 💘';
+            this.recargarNominaciones();
+          },
+          error: (err) => {
+            console.error(err);
+            this.saving = false;
+            this.formError =
+              err?.error?.detail ||
+              'No se ha podido registrar la nominación.';
+          },
+        });
+
+      return;
+    }
+
+    // ---- SINGLE ----
+    if (!this.formNominadoId) {
+      this.formError = 'Elige a quién quieres nominar.';
       return;
     }
 
@@ -138,28 +212,53 @@ export class PremioDetalleComponent implements OnInit {
 
     this.awardsService
       .createNomination(this.award.id, {
-        nominado: this.formNominadoId!,
-        nominado_secundario:
-          this.award.allow_pair_nominations && this.modoNomina === 'pair'
-            ? this.formNominadoId2
-            : null,
+        nominado: this.formNominadoId,
         hazana: this.formHazana.trim(),
       })
       .subscribe({
         next: () => {
-          this.formHazana = '';
-          this.formNominadoId = null;
-          this.formNominadoId2 = null;
-          this.modoNomina = 'single';
+          this.resetForm();
           this.formSuccess = 'Nominación enviada 😈';
-          this.saving = false;
-          this.loadNominations(this.award!.id);
+          this.recargarNominaciones();
         },
         error: (err) => {
+          console.error(err);
           this.saving = false;
           this.formError =
-            err?.error?.detail || 'No se pudo enviar la nominación.';
+            err?.error?.detail ||
+            'No se ha podido registrar la nominación.';
         },
       });
+  }
+
+  private resetForm(): void {
+    this.saving = false;
+    this.formHazana = '';
+    this.formNominadoId = null;
+    this.formNominadoId2 = null;
+    this.modoNomina = 'single';
+  }
+
+  // =====================
+  // Helpers UI (clip)
+  // =====================
+  clipDisplayTitle(n: NominationResult): string {
+    const t = (n.clip_title || '').trim();
+    return t || n.display_name || 'Clip';
+  }
+
+  clipHasUrl(n: NominationResult): boolean {
+    return !!(n.clip_url && n.clip_url.trim());
+  }
+
+  participantsLabel(n: NominationResult): string {
+    const names = (n.participants || [])
+      .map((p) => (p.nickname || p.username).trim())
+      .filter(Boolean);
+
+    if (names.length === 0) return '';
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} & ${names[1]}`;
+    return `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`;
   }
 }
