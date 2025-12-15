@@ -1,0 +1,59 @@
+<div class="min-h-[calc(100vh-64px)] flex items-center justify-center px-4">
+  <div class="w-full max-w-md bg-slate-900/70 border border-slate-700 rounded-2xl p-6 shadow-lg">
+    <h1 class="text-2xl font-bold mb-2 text-center">
+      Bienvenido a <span class="text-emerald-400">Bolos de Chill</span>
+    </h1>
+    <p class="text-sm text-slate-400 text-center mb-6">
+      Inicia sesión para entrar al festival de premios del año 🧀
+    </p>
+
+    <form class="space-y-4" (ngSubmit)="onSubmit()">
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">
+          Usuario
+        </label>
+        <input
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+          placeholder="bolero_supremo"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">
+          Contraseña
+        </label>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="w-full mt-2 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed transition"
+      >
+        <span *ngIf="!loading">Entrar al sarao</span>
+        <span *ngIf="loading">Entrando...</span>
+      </button>
+    </form>
+
+    <p
+      *ngIf="errorMessage"
+      class="mt-3 text-xs text-center text-red-400"
+    >
+      {{ errorMessage }}
+    </p>
+
+    <p class="mt-4 text-[11px] text-center text-slate-500">
+      Las cuentas las da el admin de Bolos de Chill. Aquí no se viene a registrarse,
+      se viene invitado 😈
+    </p>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<!-- src/app/pages/premios/premios.component.html -->
+<div class="p-6 max-w-5xl mx-auto">
+  <h1 class="text-3xl font-bold text-center mb-2">
+    Premios oficiales de la gala 🎉
+  </h1>
+  <p class="text-center text-slate-400 mb-10">
+    La élite boleril se reúne una vez al año para celebrar nuestras mayores miserias.
+  </p>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center text-slate-400">
+    Cargando premios... 🌀
+  </div>
+
+  <!-- Grid -->
+  <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div
+      *ngFor="let premio of premios"
+      class="bg-slate-900/70 border border-slate-800 p-6 rounded-2xl shadow-xl
+             hover:scale-[1.02] hover:border-emerald-400 transition-all duration-300
+             animate-[fadeInUp_0.6s_ease] cursor-pointer"
+      [routerLink]="['/premios', premio.id]"
+    >
+      <!-- Icono -->
+      <div class="text-5xl mb-3 text-center">
+        {{ premio.icono }}
+      </div>
+
+      <!-- Título -->
+      <h2 class="text-xl font-bold text-emerald-400 text-center">
+        {{ premio.titulo }}
+      </h2>
+
+      <!-- Resumen -->
+      <p class="text-sm text-slate-300 text-center mt-2 italic">
+        {{ premio.resumen }}
+      </p>
+
+      <!-- Descripción -->
+      <p class="text-xs text-slate-400 mt-4 leading-relaxed">
+        {{ premio.descripcion }}
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

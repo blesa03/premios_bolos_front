@@ -1,0 +1,270 @@
+<div class="p-6 max-w-5xl mx-auto">
+  <!-- ============= MODO LISTA: /votar ============= -->
+  <section *ngIf="!selectedAward">
+    <h1 class="text-3xl font-bold text-center mb-2">
+      Elige un premio para votar 🗳️
+    </h1>
+    <p class="text-center text-slate-400 mb-8">
+      Entra en cada premio para ver a los nominados y dejar tu sabio criterio boleril.
+    </p>
+
+    <div *ngIf="loadingAwards" class="text-center text-slate-400">
+      Cargando premios... 🌀
+    </div>
+
+    <div *ngIf="!loadingAwards" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <button
+        type="button"
+        *ngFor="let premio of premios"
+        (click)="onSelectAward(premio)"
+        class="w-full text-left bg-slate-900/70 border border-slate-800 p-6 rounded-2xl shadow-xl
+               hover:scale-[1.02] hover:border-emerald-400 transition-all duration-300
+               animate-[fadeInUp_0.5s_ease]"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-4xl">
+            {{ getIconForAward(premio) }}
+          </div>
+
+          <span
+            class="text-[10px] px-2 py-1 rounded-full border"
+            [ngClass]="premio.allow_voting
+              ? 'border-emerald-400/60 text-emerald-300'
+              : 'border-slate-500 text-slate-400'"
+          >
+            {{ premio.allow_voting ? 'Votación abierta' : 'Votación cerrada' }}
+          </span>
+        </div>
+
+        <h2 class="text-lg font-bold text-emerald-400">
+          {{ premio.titulo }}
+        </h2>
+
+        <p class="text-xs text-slate-300 mt-1 italic">
+          {{ premio.resumen }}
+        </p>
+
+        <p class="text-[11px] text-slate-500 mt-3">
+          Pulsa para ver nominados y votar.
+        </p>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============= MODO DETALLE: /votar/:id ============= -->
+  <section *ngIf="selectedAward as premio">
+    <div class="flex items-center gap-3 mb-6">
+      <button
+        type="button"
+        class="text-xs px-3 py-1 rounded-full border border-slate-700 hover:border-emerald-400 hover:text-emerald-300 transition"
+        (click)="goBackToList()"
+      >
+        ⬅ Volver a la lista de premios
+      </button>
+
+      <span
+        class="ml-auto text-[10px] px-2 py-1 rounded-full border"
+        [ngClass]="premio.allow_voting
+          ? 'border-emerald-400/60 text-emerald-300'
+          : 'border-slate-500 text-slate-400'"
+      >
+        {{ premio.allow_voting ? 'Votación abierta' : 'Votación cerrada' }}
+      </span>
+    </div>
+
+    <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 mb-6 flex gap-4 items-start">
+      <div class="text-5xl">
+        {{ getIconForAward(premio) }}
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold mb-1 text-emerald-400">
+          {{ premio.titulo }}
+        </h1>
+        <p class="text-sm text-slate-300 italic mb-2">
+          {{ premio.resumen }}
+        </p>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          {{ premio.descripcion }}
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="premio.allow_voting" class="mb-4 text-xs text-emerald-300">
+      Puedes votar una nominación. Solo cuenta tu último voto.
+    </div>
+    <div *ngIf="!premio.allow_voting" class="mb-4 text-xs text-slate-400">
+      Este premio está cerrado a votaciones. Solo puedes ver los nominados.
+    </div>
+
+    <div *ngIf="loadingNominations" class="text-center text-slate-400">
+      Cargando nominaciones... 🌀
+    </div>
+
+    <div *ngIf="!loadingNominations && nominations.length === 0" class="text-center text-slate-500 text-sm">
+      Todavía no hay nominaciones para este premio. Tranquilo, que el caos llegará.
+    </div>
+
+    <div *ngIf="!loadingNominations && nominations.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+      <div
+        *ngFor="let nom of nominations"
+        class="relative bg-slate-900/70 rounded-2xl border p-5 shadow-md
+               hover:border-emerald-400/70 transition-all duration-300
+               flex flex-col justify-between"
+        [ngClass]="nom.is_my_vote ? 'border-emerald-400 ring-2 ring-emerald-400/40' : 'border-slate-800'"
+      >
+        <span
+          class="absolute top-3 right-3 text-[10px] px-2 py-1 rounded-full border bg-slate-900/80"
+          [ngClass]="nom.is_my_vote
+            ? 'border-emerald-400/70 text-emerald-300'
+            : 'border-slate-700 text-slate-400'"
+        >
+          {{ nom.is_my_vote ? 'Tu voto' : 'Candidato' }}
+        </span>
+
+        <!-- Avatares -->
+        <div class="flex flex-col items-center text-center mb-3 mt-1">
+          <div class="flex items-center justify-center mb-3">
+            <div class="flex -space-x-4">
+              <ng-container *ngFor="let p of nom.participants | slice:0:3">
+                <div class="h-20 w-20 rounded-full border border-slate-700 bg-slate-800 overflow-hidden flex items-center justify-center">
+                  <img *ngIf="p.avatar; else defaultAvatar" [src]="p.avatar" alt="Avatar" class="h-full w-full object-cover" />
+                </div>
+              </ng-container>
+
+              <div
+                *ngIf="nom.participants.length > 3"
+                class="h-20 w-20 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center text-sm"
+              >
+                +{{ nom.participants.length - 3 }}
+              </div>
+            </div>
+
+            <ng-template #defaultAvatar>
+              <span class="text-3xl">👤</span>
+            </ng-template>
+          </div>
+
+          <div class="text-sm font-semibold">
+            {{ nom.display_name }}
+          </div>
+
+          <div *ngIf="nom.clip_title" class="text-[11px] text-slate-400 mt-1">
+            🎬 {{ nom.clip_title }}
+          </div>
+        </div>
+
+        <!-- Hazañas -->
+        <div class="mt-1">
+          <p class="text-[11px] text-slate-400 mb-1 text-left">
+            Hazañas que lo avalan:
+          </p>
+          <ul class="text-xs text-slate-200 space-y-1 list-disc list-inside">
+            <li *ngFor="let h of nom.hazanas">
+              {{ h }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Votos -->
+        <div class="mt-3 text-xs text-slate-400">
+          <ng-container *ngIf="premio.show_results; else votosOcultos">
+            Votos totales:
+            <span class="font-semibold text-emerald-300">{{ nom.votos }}</span>
+          </ng-container>
+          <ng-template #votosOcultos>
+            Los votos están ocultos hasta la gala. Solo ves cuál es tu voto.
+          </ng-template>
+        </div>
+
+        <!-- Acciones: ver clip (solo clip) -->
+        <div *ngIf="premio.award_type === 'clip' && nom.clip_url" class="mt-4 flex gap-2">
+          <button
+            type="button"
+            class="flex-1 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300
+                   hover:border-emerald-400 hover:text-emerald-300 transition"
+            (click)="openClip(nom)"
+          >
+            ▶ Ver clip
+          </button>
+
+          <a
+            class="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300
+                   hover:border-emerald-400 hover:text-emerald-300 transition"
+            [href]="nom.clip_url"
+            target="_blank"
+            rel="noopener"
+          >
+            Abrir
+          </a>
+        </div>
+
+        <!-- Botón votar -->
+        <button
+          type="button"
+          class="mt-4 w-full rounded-lg text-sm font-semibold px-3 py-2
+                 bg-emerald-500 text-slate-900 hover:bg-emerald-400
+                 disabled:opacity-60 disabled:cursor-not-allowed transition"
+          (click)="onVote(nom)"
+          [disabled]="voting || !premio.allow_voting"
+        >
+          {{
+            !premio.allow_voting
+              ? 'Votación cerrada'
+              : nom.is_my_vote
+                ? 'Este ya es tu voto'
+                : 'Votar'
+          }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal clip -->
+    <div
+      *ngIf="clipModalOpen && selectedClip"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      (click)="closeClip()"
+    >
+      <div
+        class="w-full max-w-3xl bg-slate-950 border border-slate-800 rounded-2xl shadow-xl overflow-hidden"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="flex items-center justify-between p-4 border-b border-slate-800">
+          <div class="text-sm font-semibold">
+            {{ clipDisplayTitle(selectedClip) }}
+          </div>
+          <button
+            type="button"
+            class="text-xs px-3 py-1 rounded-full border border-slate-700 hover:border-emerald-400 hover:text-emerald-300 transition"
+            (click)="closeClip()"
+          >
+            ✕ Cerrar
+          </button>
+        </div>
+
+        <div class="p-4">
+          <video
+            *ngIf="selectedClip.clip_url"
+            class="w-full rounded-xl border border-slate-800 bg-black"
+            [src]="selectedClip.clip_url"
+            controls
+            playsinline
+          ></video>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="mt-4 text-xs text-rose-400">
+      {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="mt-4 text-xs text-emerald-400">
+      {{ successMessage }}
+    </div>
+  </section>
+</div>
+
+<style>
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+</style>

@@ -1,0 +1,124 @@
+<!-- src/app/pages/perfil/perfil.component.html -->
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-1">
+    Tu ficha en los Premios Bolos de Chill
+  </h1>
+  <p class="text-sm text-slate-400 mb-6">
+    Aquí configuras tu cara pública: apodo, frase legendaria y foto de perfil.
+    Esto es lo que verán cuando te den (o no) premios.
+  </p>
+
+  <div *ngIf="loading" class="text-sm text-slate-400">
+    Cargando tu grandeza boleril...
+  </div>
+
+  <div *ngIf="!loading">
+    <div
+      class="grid gap-8 md:grid-cols-[220px,1fr] items-start bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-lg"
+    >
+      <!-- Avatar -->
+      <div class="flex flex-col items-center gap-4">
+        <div
+          class="h-28 w-28 rounded-full border border-slate-700 bg-slate-800 overflow-hidden flex items-center justify-center"
+        >
+          <ng-container *ngIf="avatarPreview; else noAvatar">
+            <img
+              [src]="avatarPreview"
+              alt="Avatar"
+              class="h-full w-full object-cover"
+            />
+          </ng-container>
+          <ng-template #noAvatar>
+            <span class="text-3xl">👤</span>
+          </ng-template>
+        </div>
+
+        <label
+          class="cursor-pointer text-xs font-medium px-3 py-1 rounded-full border border-emerald-400/60 hover:bg-emerald-400 hover:text-slate-900 transition"
+        >
+          Cambiar foto
+          <input
+            type="file"
+            accept="image/*"
+            class="hidden"
+            (change)="onFileChange($event)"
+          />
+        </label>
+
+        <p class="text-[11px] text-center text-slate-500">
+          JPG/PNG, máximo ~2-3 MB. Nada demasiado turbio, que luego esto sale en
+          las capturas del grupo.
+        </p>
+      </div>
+
+      <!-- Datos de perfil -->
+      <form class="space-y-4" (ngSubmit)="guardarPerfil()">
+        <div *ngIf="user" class="text-xs text-slate-400 mb-2">
+          Usuario de acceso:
+          <span class="font-mono text-slate-200">&#64;{{ user.username }}</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium mb-1">Apodo</label>
+          <input
+            [(ngModel)]="nickname"
+            name="nickname"
+            maxlength="30"
+            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+            placeholder="El ludópata silencioso"
+          />
+          <p class="mt-1 text-[11px] text-slate-500">
+            Máx. 30 caracteres. Se usará en la gala y en la lista de
+            integrantes.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium mb-1">Descripción corta</label>
+          <input
+            [(ngModel)]="short_bio"
+            name="short_bio"
+            maxlength="20"
+            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+            placeholder="Respira Red Bull"
+          />
+          <p class="mt-1 text-[11px] text-slate-500">
+            Un titular rápido. Sale pegado al apodo.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium mb-1">Descripción larga</label>
+          <textarea
+            [(ngModel)]="long_bio"
+            name="long_bio"
+            maxlength="120"
+            rows="4"
+            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+            placeholder="Jugador compulsivo de slots, main support en rankeds, alma de todas las previas y cadáver de todas las resacas."
+          ></textarea>
+          <p class="mt-1 text-[11px] text-slate-500">
+            Aquí te puedes explayar un poco más. Sale en tu perfil completo.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button
+            type="submit"
+            [disabled]="loading"
+            class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:opacity-60"
+          >
+            {{ loading ? 'Guardando...' : 'Guardar perfil' }}
+          </button>
+
+          <span *ngIf="successMessage" class="text-xs text-emerald-400">
+            {{ successMessage }}
+          </span>
+          <span *ngIf="errorMessage" class="text-xs text-rose-400">
+            {{ errorMessage }}
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

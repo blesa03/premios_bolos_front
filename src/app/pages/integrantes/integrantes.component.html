@@ -1,0 +1,55 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-0 p-6">
+  <div
+    *ngFor="let user of integrantes"
+    class="max-w-[380px] w-full mx-auto rounded-2xl bg-slate-900/70 border border-slate-800 p-5 shadow hover:scale-[1.02] transition duration-300 hover:border-emerald-400"
+  >
+    <!-- Avatar -->
+    <div class="flex justify-center mb-3">
+      <img
+        *ngIf="user.avatar; else noImage"
+        [src]="user.avatar"
+        class="h-20 w-20 rounded-full border border-slate-700 object-cover"
+      />
+      <ng-template #noImage>
+        <div
+          class="h-20 w-20 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-3xl"
+        >
+          👤
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Nombre -->
+    <h2 class="text-lg font-semibold text-center">
+      {{ user.nickname || user.username }}
+    </h2>
+
+    <!-- Descripción corta -->
+    <p class="text-[11px] text-slate-500 mt-1 text-center italic">
+    {{ user.short_bio || "Leyenda por descubrir…" }}
+    </p>
+
+    <!-- Bio larga -->
+    <p class="text-xs text-slate-400 mt-2 text-center">
+      {{ user.long_bio || "Este bolero aún no ha puesto descripción porque está en una previa." }}
+    </p>
+
+    <!-- Premios -->
+    <div class="mt-4" *ngIf="user.premios && user.premios.length > 0">
+      <p class="text-xs font-semibold text-emerald-400 mb-1">
+        Premios conseguidos:
+      </p>
+
+      <ul class="text-xs text-slate-300 space-y-1">
+        <li *ngFor="let p of user.premios">
+          • {{ p.titulo }} ({{ p.anio }})
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="user.premios && user.premios.length === 0" class="text-xs text-slate-500 mt-2">
+      Este bolero no ganó absolutamente nada 😔
+    </div>
+
+  </div>
+</div>

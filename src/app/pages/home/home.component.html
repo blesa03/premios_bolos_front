@@ -1,0 +1,67 @@
+<div class="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-10">
+  <div class="max-w-5xl w-full grid gap-10 md:grid-cols-2 items-center">
+    <!-- Texto izquierda -->
+    <section class="space-y-4">
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+        Premios
+        <span class="text-emerald-400">Bolos de Chill {{ currentYear }}</span>
+      </h1>
+
+      <h2 class="text-sm md:text-base text-slate-300">
+        Una gala seria para la banda más criminal.
+      </h2>
+
+      <p class="text-sm md:text-[15px] text-slate-400 leading-relaxed">
+        Somos ese grupo de colegas que dijo <span class="text-emerald-400">“una partida rápida”</span>
+        y acabó cerrando el bar, el Discord y probablemente el casino online.
+        Entre apuestas absurdas, resacas tácticas, vapers que no se acaban
+        y vicios a los videojuegos, hemos decidido hacer lo lógico:
+        montar una gala de premios como si esto fuera algo respetable.
+      </p>
+
+      <p class="text-xs md:text-sm text-slate-500">
+        Aquí se viene a reírse de uno mismo, a recordar jugadas históricas
+        y a votar con total falta de objetividad. Si has llegado hasta aquí,
+        ya formas parte del circo. 🎪
+      </p>
+
+      <div class="flex flex-wrap gap-3 pt-2">
+        <a
+          routerLink="/premios"
+          class="inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-xs md:text-sm font-semibold text-slate-900 hover:bg-emerald-400 transition"
+        >
+          Ver todos los premios
+        </a>
+        <a
+          routerLink="/votar"
+          class="inline-flex items-center rounded-lg border border-slate-600 px-4 py-2 text-xs md:text-sm text-slate-200 hover:border-emerald-400 hover:text-emerald-300 transition"
+        >
+          Ir a votar el salseo
+        </a>
+      </div>
+
+      <div class="flex flex-wrap gap-2 pt-3 text-[11px] text-slate-400">
+        <span class="px-2 py-1 rounded-full border border-slate-700/70">
+          🎮 Vicio nocturno
+        </span>
+        <span class="px-2 py-1 rounded-full border border-slate-700/70">
+          🍻 “La última y nos vamos”
+        </span>
+        <span class="px-2 py-1 rounded-full border border-slate-700/70">
+          💸 Apuestas que nadie debía hacer
+        </span>
+      </div>
+    </section>
+
+    <!-- Imagen derecha -->
+    <section
+      class="relative w-full aspect-[3/3] rounded-2xl border border-slate-700 bg-slate-900/70 overflow-hidden flex items-center justify-center"
+    >
+      <img
+        src="assets/img/foto_grupal_1.jpeg"
+        alt="Foto del grupo Bolos de Chill"
+        class="w-full h-full object-fit"
+      />
+    </section>
+  </div>
+</div>

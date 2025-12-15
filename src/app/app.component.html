@@ -1,0 +1,97 @@
+<div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
+  <!-- Navbar -->
+  <header
+    *ngIf="!isLoginRoute()"
+    class="w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur"
+  >
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-xl font-bold tracking-tight">
+          Bolos de Chill
+        </span>
+        <span class="text-xs px-2 py-1 rounded-full border border-emerald-400/40">
+          Edición Premios
+        </span>
+      </div>
+
+      <!-- Menú principal -->
+      <nav class="hidden md:flex items-center gap-4 text-sm">
+        <a
+          routerLink="/"
+          routerLinkActive="text-emerald-400"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="hover:text-emerald-300 transition"
+        >
+          Home
+        </a>
+
+        <a routerLink="/premios" routerLinkActive="text-emerald-400" class="hover:text-emerald-300 transition">
+          Premios
+        </a>
+        <a routerLink="/sugerir" routerLinkActive="text-emerald-400" class="hover:text-emerald-300 transition">
+          Sugerir
+        </a>
+        <a routerLink="/votar" routerLinkActive="text-emerald-400" class="hover:text-emerald-300 transition">
+          Votar
+        </a>
+        <a routerLink="/integrantes" routerLinkActive="text-emerald-400" class="hover:text-emerald-300 transition">
+          Integrantes
+        </a>
+      </nav>
+
+      <!-- Perfil arriba a la derecha -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex flex-col items-end">
+          <span class="text-xs uppercase tracking-wide text-slate-400">
+            Sesión
+          </span>
+
+          <!-- Mientras carga /me -->
+          <span *ngIf="loadingUser()" class="text-xs text-slate-500">
+            cargando...
+          </span>
+
+          <!-- Usuario cargado -->
+          <span *ngIf="!loadingUser() && currentUser()" class="text-sm font-semibold">
+            &#64;{{ currentUser()?.nickname || currentUser()?.username }}
+          </span>
+
+          <!-- Por si no hay user (fallo raro) -->
+          <span *ngIf="!loadingUser() && !currentUser()" class="text-xs text-slate-500">
+            sin sesión
+          </span>
+        </div>
+
+        <button
+          routerLink="/perfil"
+          class="h-9 w-9 rounded-full border border-slate-700 overflow-hidden flex items-center justify-center bg-slate-800 hover:border-emerald-400 transition"
+        >
+          <!-- Si hay avatar, lo mostramos -->
+          <ng-container *ngIf="currentUser()?.avatar; else defaultAvatar">
+            <img
+              [src]="currentUser()?.avatar!"
+              alt="avatar"
+              class="h-full w-full object-cover"
+            />
+          </ng-container>
+          <ng-template #defaultAvatar>
+            <span class="text-xs">👤</span>
+          </ng-template>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer chill -->
+  <footer
+    *ngIf="!isLoginRoute()"
+    class="border-t border-slate-800 py-3 text-center text-xs text-slate-500"
+  >
+    Bolos de Chill · Premios del año 🥳
+  </footer>
+</div>
