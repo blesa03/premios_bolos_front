@@ -100,6 +100,40 @@
           </div>
         </div>
       </div>
+      <!-- ================= MODAL CLIP ================= -->
+      <div
+        *ngIf="clipModalOpen && selectedClip"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+        (click)="closeClip()"
+      >
+        <div
+          class="w-full max-w-3xl bg-slate-950 border border-slate-800 rounded-2xl shadow-xl overflow-hidden"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-center justify-between p-4 border-b border-slate-800">
+            <div class="text-sm font-semibold">
+              {{ clipDisplayTitle(selectedClip) }}
+            </div>
+            <button
+              type="button"
+              class="text-xs px-3 py-1 rounded-full border border-slate-700 hover:border-emerald-400 hover:text-emerald-300 transition"
+              (click)="closeClip()"
+            >
+              ✕ Cerrar
+            </button>
+          </div>
+
+          <div class="p-4">
+            <video
+              *ngIf="selectedClip.clip_url"
+              class="w-full rounded-xl border border-slate-800 bg-black"
+              [src]="selectedClip.clip_url"
+              controls
+              playsinline
+            ></video>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ========================= -->
