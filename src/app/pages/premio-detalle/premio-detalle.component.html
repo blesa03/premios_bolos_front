@@ -140,26 +140,69 @@
     <!-- PEOPLE                   -->
     <!-- ========================= -->
     <ng-container *ngIf="award.award_type !== 'clip'">
-      <!-- Nominaciones -->
+      <!-- Nominaciones (MISMO DISEÑO QUE /votar) -->
       <section class="mt-8">
         <h2 class="text-lg font-semibold mb-2">Nominaciones actuales</h2>
 
-        <p *ngIf="nominados.length === 0" class="text-sm text-slate-500">
+        <p *ngIf="nominations.length === 0" class="text-sm text-slate-500">
           Nadie ha sido nominado todavía. 😴
         </p>
 
-        <div *ngIf="nominados.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          *ngIf="nominations.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4"
+        >
           <div
-            *ngFor="let item of nominados"
-            class="rounded-2xl bg-slate-900/70 border border-slate-800 p-4 shadow"
+            *ngFor="let nom of nominations"
+            class="relative bg-slate-900/70 rounded-2xl border p-5 shadow-md
+                  hover:border-emerald-400/70 transition-all duration-300
+                  flex flex-col justify-between border-slate-800"
           >
-            <div class="text-sm font-semibold">
-              {{ item.user1.nickname || item.user1.username }}
+            <!-- Avatares -->
+            <div class="flex flex-col items-center text-center mb-3 mt-1">
+              <div class="flex items-center justify-center mb-3">
+                <div class="flex -space-x-4">
+                  <ng-container *ngFor="let p of nom.participants | slice:0:3">
+                    <div
+                      class="h-20 w-20 rounded-full border border-slate-700 bg-slate-800 overflow-hidden flex items-center justify-center"
+                    >
+                      <img
+                        *ngIf="p.avatar; else defaultAvatar"
+                        [src]="p.avatar"
+                        class="h-full w-full object-cover"
+                      />
+                    </div>
+                  </ng-container>
+
+                  <div
+                    *ngIf="nom.participants.length > 3"
+                    class="h-20 w-20 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center text-sm"
+                  >
+                    +{{ nom.participants.length - 3 }}
+                  </div>
+                </div>
+
+                <ng-template #defaultAvatar>
+                  <span class="text-3xl">👤</span>
+                </ng-template>
+              </div>
+
+              <div class="text-sm font-semibold">
+                {{ nom.display_name }}
+              </div>
             </div>
 
-            <ul class="text-xs text-slate-300 mt-2 space-y-1">
-              <li *ngFor="let h of item.hazanas">• {{ h }}</li>
-            </ul>
+            <!-- Hazañas -->
+            <div class="mt-1">
+              <p class="text-[11px] text-slate-400 mb-1 text-left">
+                Hazañas que lo avalan:
+              </p>
+              <ul class="text-xs text-slate-200 space-y-1 list-disc list-inside">
+                <li *ngFor="let h of nom.hazanas">
+                  {{ h }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
