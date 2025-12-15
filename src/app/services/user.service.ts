@@ -12,7 +12,7 @@ export interface User {
   avatar: string | null;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost:8001';
 const API_URL = `${API_BASE}/api`;
 
 // Función auxiliar para que el avatar SIEMPRE tenga una URL bien formada
